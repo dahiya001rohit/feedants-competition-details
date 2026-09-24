@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useT } from '../i18n';
@@ -8,7 +9,11 @@ import { notify } from '../lib/dialog';
 
 export function UserSwitcher({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const t = useT();
-  const { demoUsers, user, switchUser } = useSession();
+  const { demoUsers, user, switchUser, refreshDemoUsers } = useSession();
+
+  useEffect(() => {
+    if (visible) refreshDemoUsers().catch(() => {}); // keep showing the last list if offline
+  }, [visible, refreshDemoUsers]);
 
   const pick = async (id: string) => {
     try {

@@ -10,6 +10,7 @@ interface Session {
   lang: Lang;
   setLang: (lang: Lang) => void;
   switchUser: (userId: string) => Promise<void>;
+  refreshDemoUsers: () => Promise<void>;
   retry: () => void;
 }
 
@@ -26,6 +27,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { token, user: next } = await api.demoLogin(userId);
     setAuthToken(token);
     setUser(next);
+  }, []);
+
+  // Re-read on demand: reseeding the database gives the demo users new ids.
+  const refreshDemoUsers = useCallback(async () => {
+    setDemoUsers((await api.demoUsers()).users);
   }, []);
 
   const start = useCallback(async () => {
@@ -45,7 +51,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [start]);
 
   return (
-    <SessionContext.Provider value={{ status, user, demoUsers, lang, setLang, switchUser, retry: start }}>
+    <SessionContext.Provider value={{ status, user, demoUsers, lang, setLang, switchUser, refreshDemoUsers, retry: start }}>
       {children}
     </SessionContext.Provider>
   );

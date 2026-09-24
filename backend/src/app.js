@@ -21,6 +21,7 @@ app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  if (req.socket.destroyed) return; // client disconnected mid-request (e.g. left during an upload); nobody to answer
   let e = err;
   if (err instanceof multer.MulterError) {
     e = err.code === 'LIMIT_FILE_SIZE'

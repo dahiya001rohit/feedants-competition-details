@@ -99,6 +99,13 @@ test('registration is rejected outside the window and without auth', async () =>
   assert.equal(res.status, 409);
   assert.equal(res.body.error.code, 'REGISTRATION_CLOSED');
   assert.equal((await request(server).post(`/api/competitions/${closed.id}/registrations`)).status, 401);
+
+  // A valid token for an account that no longer exists must not register anyone.
+  const open = await makeCompetition();
+  const ghost = { _id: new mongoose.Types.ObjectId() };
+  const res2 = await registerAs(open, ghost);
+  assert.equal(res2.status, 401);
+  assert.equal((await Competition.findById(open.id)).bookedCount, 0);
 });
 
 test('details reflect viewer state, spots and language fallback', async () => {
