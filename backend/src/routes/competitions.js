@@ -52,6 +52,10 @@ router.put(
   requireAuth,
   writeLimiter,
   async (req, res, next) => {
+    // Reject an oversized upload from its declared length instead of reading the body first.
+    if (Number(req.get('content-length')) > config.maxUploadBytes + 1e6) {
+      throw new HttpError(413, 'FILE_TOO_LARGE', 'That video is too large.');
+    }
     await svc.assertCanSubmit(req.params.id, req.userId);
     next();
   },

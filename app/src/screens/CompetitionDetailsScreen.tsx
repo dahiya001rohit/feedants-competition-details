@@ -7,7 +7,7 @@ import { useCompetition } from '../hooks/useCompetition';
 import { useT } from '../i18n';
 import { getCta } from '../lib/cta';
 import { confirm, notify } from '../lib/dialog';
-import { pickSubmission } from '../lib/upload';
+import { pickVideo } from '../lib/upload';
 import type { RootStackParamList, TabName } from '../navigation';
 import { useSession } from '../session';
 import { colors } from '../theme';
@@ -69,8 +69,9 @@ export function CompetitionDetailsScreen({ route, navigation }: Props) {
       const ok = await confirm(t.confirmRegisterTitle, t.confirmRegisterBody(c.entryFee, c.title), t.pay(c.entryFee), t.cancel);
       if (ok) await run('register', () => api.register(id, lang), [t.registeredTitle, t.registeredBody]);
     } else if (cta.action === 'upload') {
-      const form = await pickSubmission();
-      if (form) await run('upload', () => api.uploadSubmission(id, lang, form), [t.uploadedTitle, t.uploadedBody]);
+      const video = await pickVideo(c.maxUploadBytes);
+      if (video === 'too-large') notify(t.errorTitle, t.errors.FILE_TOO_LARGE);
+      else if (video) await run('upload', () => api.uploadSubmission(id, lang, video), [t.uploadedTitle, t.uploadedBody]);
     }
   };
 

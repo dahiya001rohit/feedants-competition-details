@@ -20,6 +20,7 @@ function presentSummary(c, lang, now) {
     bookedCount: c.bookedCount,
     spotsLeft: Math.max(0, c.capacity - c.bookedCount),
     schedule: c.schedule,
+    maxUploadBytes: config.maxUploadBytes, // lets the app refuse an oversized video before uploading it
   };
 }
 

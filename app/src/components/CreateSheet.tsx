@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { api, ApiError, type MyRegistration } from '../api';
 import { useT } from '../i18n';
 import { notify } from '../lib/dialog';
-import { pickSubmission } from '../lib/upload';
+import { pickVideo } from '../lib/upload';
 import { useSession } from '../session';
 import { colors } from '../theme';
 import { EmptyState, PrimaryButton, T } from './ui';
@@ -33,11 +33,12 @@ export function CreateSheet({ visible, onClose, onBrowse }: { visible: boolean; 
   }, [visible, lang, user?.id]);
 
   const upload = async (item: MyRegistration) => {
-    const form = await pickSubmission();
-    if (!form) return;
+    const video = await pickVideo(item.competition.maxUploadBytes);
+    if (video === 'too-large') return notify(t.errorTitle, t.errors.FILE_TOO_LARGE);
+    if (!video) return;
     setUploadingId(item.competition.id);
     try {
-      await api.uploadSubmission(item.competition.id, lang, form);
+      await api.uploadSubmission(item.competition.id, lang, video);
       notify(t.uploadedTitle, t.uploadedBody);
     } catch (e) {
       const err = e as ApiError;

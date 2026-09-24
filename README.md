@@ -164,6 +164,7 @@ On the client, poll responses can arrive after a newer mutation response. `useCo
 - **The countdown ticks inside its own component**, so only that component re-renders each second. When it hits zero it triggers a refetch, which moves the phase and the button forward.
 - **Polling (15s, paused in the background, refetch on focus and on foreground)** keeps spots fresh with plain HTTP. Responses are small and ETag'd by Express.
 - **Transactions + a conditional `$inc` + a unique index** give three layers of protection, each covering a different failure mode (see above).
+- **Videos upload through Expo's native uploader on devices**, which streams the file from disk. `fetch` + `FormData` loads the whole file into memory and failed outright for iPhone videos. The app also checks the size before sending; the limit comes from the API.
 - **Validate before accepting the upload.** Registration and window checks run before multer touches the disk, so rejected requests never write files.
 - **Per-user write rate limit** (keyed after auth) rather than per-IP, because mobile carriers put many users behind one IP.
 - **No global state library.** A small session context (user, language) and a data hook per screen cover this module. Lists refetch whenever their screen comes into focus, so an action on one tab shows up on the others.
